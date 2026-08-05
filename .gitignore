@@ -1,0 +1,10 @@
+# Environment variables
+.env
+.env.local
+
+# IDE
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  passwordHash  String
+  name          String?
+  createdAt     DateTime       @default(now())
+  refreshTokens RefreshToken[]
+  visits        Visit[]
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model CoffeeShop {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  location Location?
+  photos   Photo[]
+  visits   Visit[]
+}
+
+model Visit {
+  id           String     @id @default(uuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coffeeShopId String
+  coffeeShop   CoffeeShop @relation(fields: [coffeeShopId], references: [id], onDelete: Cascade)
+  visitedAt    DateTime   @default(now())
+  notes        String?
+  rating       Int?
+  photos       Photo[]
+  createdAt    DateTime   @default(now())
+
+  @@index([userId])
+  @@index([coffeeShopId])
+}
+
+model Location {
+  id           String     @id @default(uuid())
+  address      String?
+  city         String?
+  country      String?
+  latitude     Float
+  longitude    Float
+  coffeeShopId String     @unique
+  coffeeShop   CoffeeShop @relation(fields: [coffeeShopId], references: [id], onDelete: Cascade)
+}
+
+model Photo {
+  id           String      @id @default(uuid())
+  url          String // Lien vers le stockage cloud (ex: AWS S3)
+  caption      String?
+  coffeeShopId String?
+  coffeeShop   CoffeeShop? @relation(fields: [coffeeShopId], references: [id], onDelete: Cascade)
+  visit        Visit?      @relation(fields: [visitId], references: [id], onDelete: Cascade)
+  visitId      String?
+}

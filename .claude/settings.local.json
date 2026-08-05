@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(where claude *)",
+      "Bash(npm -g config get prefix)",
+      "Bash(claude --version)",
+      "Read(//c/Users/Louis/**)",
+      "Read(//c/Users/Louis/.claude/**)",
+      "Bash(node *)",
+      "Read(//c/ProgramData/ClaudeCode/**)",
+      "Read(//c/ProgramData/**)",
+      "Bash(env)",
+      "Bash(npm view *)",
+      "Bash(awk '{print $2}')",
+      "Read(//tmp/**)",
+      "Bash(mkdir -p /c/Users/Louis/AppData/Local/Temp/claude/C--Users-Louis-PyCharmMiscProject/8f3e6e26-3b4f-478d-8e35-1205431773dd/scratchpad)",
+      "Bash(cp /tmp/recent_transcripts.txt /c/Users/Louis/AppData/Local/Temp/claude/C--Users-Louis-PyCharmMiscProject/8f3e6e26-3b4f-478d-8e35-1205431773dd/scratchpad/recent_transcripts.txt)",
+      "Bash(claude update *)",
+      "Bash(git init *)",
+      "Bash(git rm *)"
+    ]
+  }
+}
