@@ -17,7 +17,24 @@
       "Bash(cp /tmp/recent_transcripts.txt /c/Users/Louis/AppData/Local/Temp/claude/C--Users-Louis-PyCharmMiscProject/8f3e6e26-3b4f-478d-8e35-1205431773dd/scratchpad/recent_transcripts.txt)",
       "Bash(claude update *)",
       "Bash(git init *)",
-      "Bash(git rm *)"
+      "Bash(git rm *)",
+      "Bash(git remote *)",
+      "Bash(git ls-tree *)",
+      "Bash(powershell -Command \"Start-Process 'C:\\\\Program Files\\\\Docker\\\\Docker\\\\Docker Desktop.exe'\")",
+      "Bash(tasklist //FI \"IMAGENAME eq Docker Desktop.exe\")",
+      "Bash(taskkill //F //IM \"Docker Desktop.exe\")",
+      "Bash(tasklist //FI \"IMAGENAME eq com.docker.backend.exe\")",
+      "Bash(wsl -l -v)",
+      "Bash(wsl --shutdown)",
+      "Bash(echo \"exit code: $?\")",
+      "Bash(npm audit *)",
+      "Read(//c/tmp/**)",
+      "Bash(rm -f cookies.txt)",
+      "Bash(curl -s -c cookies.txt -X POST http://localhost:4001/api/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"louis.barbonet@gmail.com\",\"password\":\"LouisBCoffee0\"}' -w '\\\\nLOGIN_STATUS:%{http_code}\\\\n')",
+      "Bash(curl -s -b cookies.txt http://localhost:4001/api/coffee-shops)",
+      "Bash(curl -s -b cookies.txt http://localhost:4001/api/visits)",
+      "Bash(docker exec coffeeexplorer-postgres-1 *)",
+      "Bash(cd *)"
     ]
   }
 }
