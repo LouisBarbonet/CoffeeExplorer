@@ -34,7 +34,25 @@
       "Bash(curl -s -b cookies.txt http://localhost:4001/api/coffee-shops)",
       "Bash(curl -s -b cookies.txt http://localhost:4001/api/visits)",
       "Bash(docker exec coffeeexplorer-postgres-1 *)",
-      "Bash(cd *)"
+      "Bash(cd *)",
+      "Bash(npm install *)",
+      "Bash(rm lib/api/activities.ts lib/hooks/use-geolocation.ts)",
+      "Bash(rmdir lib/hooks)",
+      "Bash(rm public/file.svg public/globe.svg public/next.svg public/vercel.svg public/window.svg)",
+      "Bash(npm run *)",
+      "Bash(tasklist *)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill //F //PID 58584)",
+      "Bash(rm -rf .next)",
+      "Bash(awk '{print $5}')",
+      "Bash(curl *)",
+      "Bash(taskkill //F //PID 100212)",
+      "Bash(taskkill //F //PID 142616)",
+      "Bash(taskkill //F //PID 132280)",
+      "Bash(npx next *)",
+      "Bash(gh auth *)",
+      "Bash(docker --version)",
+      "Bash(npx tsc *)"
     ]
   }
 }

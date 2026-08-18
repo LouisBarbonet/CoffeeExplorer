@@ -15,7 +15,7 @@ import { PhotosModule } from './photos/photos.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    ThrottlerModule.forRoot([{ ttl: 60000, limit: 60 }]),
+    ThrottlerModule.forRoot([{ ttl: 60000, limit: 300 }]),
     PrismaModule,
     AuthModule,
     UsersModule,
