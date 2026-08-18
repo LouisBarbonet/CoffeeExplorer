@@ -1,0 +1,146 @@
+name: Checks
+
+# Reusable workflow (workflow_call) so both ci.yml (on every PR) and cd.yml
+# (before deploying from master) run the exact same lint/typecheck/test/build
+# steps without duplicating them.
+on:
+  workflow_call:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://test:test@localhost:5432/test?schema=public
+      JWT_SECRET: ci-test-access-secret
+      JWT_REFRESH_SECRET: ci-test-refresh-secret
+      JWT_ACCESS_EXPIRES_IN: 15m
+      JWT_REFRESH_EXPIRES_IN: 30d
+      COOKIE_SECURE: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      # Prisma 7's generated client (backend/generated/prisma) is gitignored
+      # and custom-output -- unlike Prisma 6's default prisma-client-js, it
+      # doesn't get auto-generated via an npm postinstall hook (confirmed by
+      # this project's own repeated need to run this manually all session),
+      # and it must exist before lint/typecheck since the app imports from it
+      # directly.
+      - run: npx prisma generate
+      - run: npm run lint
+      - run: npx tsc --noEmit
+      - run: npx prisma migrate deploy
+      # test/env-setup.ts tries to load backend/.env.test (gitignored, absent
+      # here) via a bare dotenv.config() call with no error check -- on a
+      # missing file that's a silent no-op, so the env: block above (already
+      # set on the job) passes straight through untouched.
+      - run: npm run test:e2e
+      - run: npm run build
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend/coffee-explorer
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/coffee-explorer/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npx tsc --noEmit
+      - run: npm run build
+
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: backend
+          target: prod
+          push: false
+          load: true
+          tags: coffeeexplorer-backend:ci
+
+      - name: Build frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: frontend/coffee-explorer
+          target: prod
+          push: false
+          load: true
+          tags: coffeeexplorer-frontend:ci
+
+      # `docker build` succeeding only proves the image assembles -- it does NOT
+      # prove the CMD is even valid (a wrong entrypoint path builds fine and
+      # only fails at `docker run`). Actually start each image and hit it.
+      - name: Smoke test backend image actually starts and serves traffic
+        run: |
+          docker network create ci-net
+          docker run -d --name ci-postgres --network ci-net \
+            -e POSTGRES_USER=test -e POSTGRES_PASSWORD=test -e POSTGRES_DB=test \
+            postgres:16-alpine
+          for i in $(seq 1 30); do
+            docker exec ci-postgres pg_isready -U test -d test 2>/dev/null && break
+            sleep 2
+          done
+
+          docker run -d --name ci-backend --network ci-net -p 4000:4000 \
+            -e DATABASE_URL="postgresql://test:test@ci-postgres:5432/test?schema=public" \
+            -e JWT_SECRET=ci-smoke-secret -e JWT_REFRESH_SECRET=ci-smoke-refresh-secret \
+            -e JWT_ACCESS_EXPIRES_IN=15m -e JWT_REFRESH_EXPIRES_IN=30d -e COOKIE_SECURE=false \
+            coffeeexplorer-backend:ci
+          docker exec ci-backend npx prisma migrate deploy
+
+          for i in $(seq 1 20); do
+            if curl -sf http://localhost:4000/api/health > /dev/null; then
+              echo "Backend is healthy"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Backend never became healthy -- logs:"
+          docker logs ci-backend
+          exit 1
+
+      - name: Smoke test frontend image actually starts
+        run: |
+          docker run -d --name ci-frontend -p 3000:3000 coffeeexplorer-frontend:ci
+          for i in $(seq 1 20); do
+            if curl -sf -o /dev/null http://localhost:3000/login; then
+              echo "Frontend is serving"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Frontend never came up -- logs:"
+          docker logs ci-frontend
+          exit 1

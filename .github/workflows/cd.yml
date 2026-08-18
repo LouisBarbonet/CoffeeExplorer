@@ -1,0 +1,79 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  checks:
+    uses: ./.github/workflows/checks.yml
+
+  build-and-push:
+    runs-on: ubuntu-latest
+    needs: [checks]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lowercase the repo owner (GHCR image names must be lowercase)
+        run: echo "OWNER=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_ENV"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # The Oracle Free Tier VM is an AMD-based E2 micro instance (linux/amd64),
+      # which matches the runner's own platform -- no cross-arch emulation needed.
+      - name: Build and push backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: backend
+          target: prod
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ghcr.io/${{ env.OWNER }}/coffeeexplorer-backend:latest
+            ghcr.io/${{ env.OWNER }}/coffeeexplorer-backend:${{ github.sha }}
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: frontend/coffee-explorer
+          target: prod
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ghcr.io/${{ env.OWNER }}/coffeeexplorer-frontend:latest
+            ghcr.io/${{ env.OWNER }}/coffeeexplorer-frontend:${{ github.sha }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build-and-push]
+    steps:
+      - name: Pull latest images and restart on the VM
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.ORACLE_VM_HOST }}
+          username: ${{ secrets.ORACLE_VM_USER }}
+          key: ${{ secrets.ORACLE_VM_SSH_KEY }}
+          script: |
+            set -e
+            cd ~/coffeeexplorer
+            git pull
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env pull
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env up -d
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env exec -T backend npx prisma migrate deploy
+            # nginx resolves the backend/frontend container IPs once at its own
+            # startup; if only backend/frontend got recreated above (nginx's
+            # own image/config didn't change, so `up -d` leaves it alone),
+            # it's left pointing at now-dead IPs -- causing 502s until restarted.
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env restart nginx
+            docker image prune -f

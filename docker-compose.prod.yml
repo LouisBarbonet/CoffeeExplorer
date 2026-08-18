@@ -1,0 +1,36 @@
+services:
+  postgres:
+    # Don't publish 5432 to the public internet in prod (dev only).
+    ports: !reset []
+
+  # `!reset []` clears the dev-only "container" profile gate: in prod these
+  # three always run (there's no host to run them natively on, and nginx is
+  # the only thing that should be reachable from outside the VM).
+  backend:
+    profiles: !reset []
+    image: ghcr.io/${GHCR_OWNER}/coffeeexplorer-backend:latest
+    # `!reset` drops the base file's `build:`/dev bind-mounts entirely rather
+    # than merging with them, so this service only ever runs the pulled image.
+    build: !reset null
+    # Keep the uploads volume (the only thing worth persisting here) but drop
+    # the dev-only source bind-mount and node_modules volume.
+    volumes: !override
+      - uploads:/app/uploads
+    ports: !reset []
+
+  frontend:
+    profiles: !reset []
+    image: ghcr.io/${GHCR_OWNER}/coffeeexplorer-frontend:latest
+    build: !reset null
+    volumes: !reset []
+    ports: !reset []
+
+  nginx:
+    profiles: !reset []
+    environment:
+      FRONTEND_UPSTREAM: frontend:3000
+    ports:
+      - "80:80"
+    # No HTTPS/443 yet -- deploying on IP + plain HTTP for now (see
+    # DEPLOY.md's "About TLS" section for how to add the Cloudflare Origin CA
+    # cert + templates-ssl once a domain exists, same pattern StravaClone uses).

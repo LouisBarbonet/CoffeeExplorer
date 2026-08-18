@@ -1,0 +1,14 @@
+node_modules
+dist
+coverage
+generated
+.env*
+.git
+
+# User-uploaded content -- never bake into the image, lives in a volume
+uploads
+
+# Vendored AI-agent skill bundles -- bulky, irrelevant to the build
+.claude/skills
+.agents/skills
+.windsurf/skills

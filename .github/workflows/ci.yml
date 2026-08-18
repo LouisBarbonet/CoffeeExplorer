@@ -1,0 +1,10 @@
+name: CI
+
+# Fast feedback on every PR, before merging to master.
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  checks:
+    uses: ./.github/workflows/checks.yml

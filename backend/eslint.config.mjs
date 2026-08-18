@@ -32,4 +32,16 @@ export default tseslint.config(
       "prettier/prettier": ["error", { endOfLine: "auto" }],
     },
   },
+  {
+    // supertest's Response.body is typed `any` by design (it can't know an
+    // API's response shape) -- e2e specs read straight off it for quick
+    // assertions, which the strict unsafe-* rules otherwise flag throughout.
+    // Scoped to test files only so src/ keeps full protection.
+    files: ['test/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-unsafe-member-access': 'warn',
+      '@typescript-eslint/no-unsafe-assignment': 'warn',
+      '@typescript-eslint/no-unsafe-call': 'warn',
+    },
+  },
 );
