@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiFetch, ApiError } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
@@ -22,10 +22,16 @@ export function EditVisitDialog({ visit, onOpenChange, onSaved }: EditVisitDialo
     const [notes, setNotes] = useState("");
     const notesId = useId();
 
-    useEffect(() => {
+    // Reset the form whenever a different visit (or null, on close) comes
+    // in. Adjusting state during render -- rather than in a useEffect after
+    // commit -- avoids an extra cascading render and keeps the dialog's
+    // mount identity (and its open/close transition) intact.
+    const [syncedVisit, setSyncedVisit] = useState(visit);
+    if (visit !== syncedVisit) {
+        setSyncedVisit(visit);
         setNotes(visit?.notes ?? "");
         setRating(visit?.rating ?? 0);
-    }, [visit]);
+    }
 
     const updateVisitMutation = useMutation({
         mutationFn: () => {
