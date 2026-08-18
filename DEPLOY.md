@@ -117,34 +117,34 @@ in and runs the same `pull` / `up -d` / `migrate deploy` sequence from step 4 au
 
 ## About TLS
 
-**Not set up yet** -- this deployment currently serves plain HTTP only (no domain). Without HTTPS,
-`COOKIE_SECURE` must stay `false` (browsers silently drop "secure" cookies over plain HTTP, which
-would otherwise break login).
+This project's TLS setup mirrors StravaClone's exactly: the domain sits behind **Cloudflare**
+(proxied/orange-cloud DNS) in front of the VM, using a **Cloudflare Origin CA certificate** rather
+than Let's Encrypt -- Cloudflare terminates the publicly-trusted HTTPS connection for real browsers
+at its own edge, and only Cloudflare's edge ever talks to this VM directly, so the origin only
+needs a cert *Cloudflare* trusts, not one the public trusts. That cert is free, lasts up to 15
+years, and needs no renewal automation, unlike Let's Encrypt.
 
-Once you have a domain, this project's TLS setup mirrors StravaClone's exactly: put the domain
-behind **Cloudflare** (proxied/orange-cloud DNS) in front of the VM, and use a **Cloudflare Origin
-CA certificate** rather than Let's Encrypt -- Cloudflare terminates the publicly-trusted HTTPS
-connection for real browsers at its own edge, and only Cloudflare's edge ever talks to this VM
-directly, so the origin only needs a cert *Cloudflare* trusts, not one the public trusts. That cert
-is free, lasts up to 15 years, and needs no renewal automation, unlike Let's Encrypt.
+`nginx/templates-ssl/default.conf.template` (the HTTPS-enabled server block) and
+`docker-compose.prod.yml`'s cert volume mount + port 443 already exist in this repo -- the steps
+below are the one-time Cloudflare/VM setup to activate them, not something you need to build.
 
-1. In the Cloudflare dashboard for the domain, under **SSL/TLS**, set the encryption mode to
-   **Full (strict)**.
-2. Still in Cloudflare, go to **SSL/TLS -> Origin Server -> Create Certificate**. Keep the default
+1. In the Cloudflare dashboard for the domain, add a DNS **A record** pointing at the VM's public
+   IP, with the orange cloud (proxied) turned **on**.
+2. Still in Cloudflare, under **SSL/TLS**, set the encryption mode to **Full (strict)**.
+3. Still in Cloudflare, go to **SSL/TLS -> Origin Server -> Create Certificate**. Keep the default
    private key type (RSA), list both `<your-domain>` and `*.<your-domain>` as hostnames, and use the
-   max validity (15 years). Cloudflare shows the cert and private key once -- copy both.
-3. On the VM:
+   max validity (15 years). Cloudflare shows the cert and private key once -- copy both immediately,
+   they are never shown again.
+4. On the VM:
    ```sh
    sudo mkdir -p /etc/coffeeexplorer/certs
    sudo nano /etc/coffeeexplorer/certs/origin.pem   # paste the certificate
    sudo nano /etc/coffeeexplorer/certs/origin.key   # paste the private key
    sudo chmod 600 /etc/coffeeexplorer/certs/origin.key
    ```
-4. Add an HTTPS server block to `docker-compose.prod.yml`'s nginx service (a `templates-ssl/`
-   directory with a cert-aware `default.conf.template`, mounted in place of the current
-   `nginx/templates/`, plus the certs volume and port 443 -- see StravaClone's
-   `infra/nginx/templates-ssl/default.conf.template` for the exact shape to copy).
-5. In `.env` on the VM, set `DOMAIN=<your-domain>` and `COOKIE_SECURE=true`, then redeploy.
+5. In `.env` on the VM, set `DOMAIN=<your-domain>` and `COOKIE_SECURE=true`, `git pull`, then
+   redeploy (`docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env up -d`
+   followed by `restart nginx`).
 6. Verify from a browser: `https://<your-domain>` should load with a valid padlock (Cloudflare's
    edge cert, not the origin one -- visitors never see the origin cert directly).
 

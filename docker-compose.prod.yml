@@ -29,8 +29,16 @@ services:
     profiles: !reset []
     environment:
       FRONTEND_UPSTREAM: frontend:3000
+      DOMAIN: ${DOMAIN}
+    # Base file mounts the plain-HTTP dev template; prod replaces it entirely
+    # with the HTTPS-enabled one plus the Cloudflare Origin CA cert (see
+    # DEPLOY.md's "About TLS" -- traffic reaches this VM only via Cloudflare's
+    # proxy, which is why this is an Origin CA cert rather than a publicly
+    # issued Let's Encrypt one).
+    volumes: !override
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/templates-ssl:/etc/nginx/templates:ro
+      - /etc/coffeeexplorer/certs:/etc/nginx/certs:ro
     ports:
       - "80:80"
-    # No HTTPS/443 yet -- deploying on IP + plain HTTP for now (see
-    # DEPLOY.md's "About TLS" section for how to add the Cloudflare Origin CA
-    # cert + templates-ssl once a domain exists, same pattern StravaClone uses).
+      - "443:443"
