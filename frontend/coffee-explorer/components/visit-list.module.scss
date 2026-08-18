@@ -1,0 +1,55 @@
+@use "../styles/mixins" as *;
+
+.empty {
+  font-family: var(--font-body);
+  color: var(--mocha-soft);
+  font-size: 0.875rem;
+}
+
+.card {
+  position: relative;
+  padding: 1rem;
+  @include card-surface(var(--radius-lg));
+
+  &::before {
+    @include washi-tape($color: var(--lilac), $rotation: -6deg, $top: -0.5rem, $left: 1.5rem);
+  }
+}
+
+.date {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--mocha);
+}
+
+.notes {
+  font-family: var(--font-body);
+  color: var(--mocha-soft);
+}
+
+.photoStrip {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding-top: 0.25rem;
+}
+
+.polaroid {
+  flex-shrink: 0;
+  background-color: var(--foam);
+  border: 1px solid var(--latte);
+  padding: 0.375rem 0.375rem 1rem;
+  box-shadow: var(--shadow-sm);
+  transform: rotate(-2deg);
+
+  &:nth-child(even) {
+    transform: rotate(2deg);
+  }
+}
+
+.polaroidImg {
+  width: 6rem;
+  height: 6rem;
+  object-fit: cover;
+  display: block;
+}

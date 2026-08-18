@@ -1,0 +1,28 @@
+@use "../../styles/mixins" as *;
+
+.input {
+  font-family: var(--font-body);
+  background-color: var(--foam);
+  border: 2px solid var(--latte);
+  border-radius: var(--radius-md);
+  color: var(--mocha);
+  transition:
+    border-color var(--duration-fast) ease,
+    box-shadow var(--duration-fast) ease;
+  @include focus-ring;
+  @include respect-reduced-motion;
+
+  &::placeholder {
+    color: var(--mocha-soft);
+    opacity: 0.7;
+  }
+
+  &:focus-visible {
+    border-color: var(--blush);
+  }
+
+  &:disabled {
+    background-color: var(--paper);
+    opacity: 0.6;
+  }
+}

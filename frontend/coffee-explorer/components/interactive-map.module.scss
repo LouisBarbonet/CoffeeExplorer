@@ -1,0 +1,98 @@
+.mapContainer {
+  border: 2px solid var(--latte);
+  border-radius: var(--radius-lg);
+  box-shadow: inset 0 2px 6px rgba(92, 58, 38, 0.1);
+}
+
+.pin {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--blush);
+  border: 2px solid var(--foam);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pinIcon {
+  width: 18px;
+  height: 18px;
+  color: var(--foam);
+}
+
+.pinPending {
+  background-color: var(--lilac);
+  opacity: 0.85;
+}
+
+.popup {
+  font-family: var(--font-body);
+  padding: 0.25rem;
+  min-width: 160px;
+}
+
+.popupImage {
+  width: 100%;
+  height: 6rem;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+.popupTitle {
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--mocha);
+  margin: 0;
+}
+
+.popupDescription {
+  font-size: 0.75rem;
+  color: var(--mocha-soft);
+  margin: 0.125rem 0;
+}
+
+.popupAddress {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--blush-deep);
+  margin: 0;
+}
+
+.popupActions {
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.addVisitBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: var(--radius-full);
+  background-color: var(--blush);
+  color: var(--mocha);
+  padding: 0.25rem 0.625rem;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+
+  &:hover {
+    background-color: var(--blush-deep);
+  }
+}
+
+.historyLink {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--lilac-deep);
+  text-decoration: underline;
+}

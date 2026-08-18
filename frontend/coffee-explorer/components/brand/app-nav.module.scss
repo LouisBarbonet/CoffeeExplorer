@@ -1,0 +1,55 @@
+@use "../../styles/mixins" as *;
+
+.desktopLink {
+  font-family: var(--font-body);
+  font-weight: 700;
+  color: var(--mocha-soft);
+  transition:
+    background-color var(--duration-fast) ease,
+    color var(--duration-fast) ease;
+  @include respect-reduced-motion;
+  @include focus-ring;
+
+  &:hover {
+    background-color: var(--latte);
+    color: var(--mocha);
+  }
+}
+
+.desktopLinkActive {
+  background-color: var(--blush);
+  color: var(--mocha);
+
+  &:hover {
+    background-color: var(--blush);
+  }
+}
+
+.dock {
+  background-color: var(--foam);
+  border: 2px solid var(--latte);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-lg);
+}
+
+.dockLink {
+  font-family: var(--font-body);
+  font-weight: 700;
+  color: var(--mocha-soft);
+  border-radius: var(--radius-md);
+  @include focus-ring;
+}
+
+.dockLinkActive {
+  color: var(--mocha);
+}
+
+.dockIconWrap {
+  border-radius: var(--radius-full);
+  transition: background-color var(--duration-fast) ease;
+  @include respect-reduced-motion;
+}
+
+.dockIconWrapActive {
+  background-color: var(--blush);
+}

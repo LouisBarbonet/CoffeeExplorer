@@ -1,0 +1,26 @@
+@use "../../styles/mixins" as *;
+
+.sparkle {
+  transform-origin: center;
+  animation: twinkle 3.2s ease-in-out infinite;
+  @include respect-reduced-motion;
+}
+
+.sparkleDelayed {
+  transform-origin: center;
+  animation: twinkle 3.2s ease-in-out infinite;
+  animation-delay: 1.1s;
+  @include respect-reduced-motion;
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.05);
+  }
+}

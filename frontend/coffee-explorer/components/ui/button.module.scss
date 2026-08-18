@@ -1,0 +1,81 @@
+@use "../../styles/mixins" as *;
+
+.button {
+  font-family: var(--font-body);
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  border: 2px solid transparent;
+  box-shadow: var(--shadow-stamp);
+  transition:
+    background-color var(--duration-fast) ease,
+    color var(--duration-fast) ease,
+    border-color var(--duration-fast) ease,
+    box-shadow var(--duration-fast) ease;
+  @include focus-ring;
+  @include respect-reduced-motion;
+
+  &:disabled {
+    box-shadow: none;
+  }
+}
+
+.default {
+  background-color: var(--blush);
+  color: var(--mocha);
+
+  &:hover:not(:disabled) {
+    background-color: var(--blush-deep);
+  }
+}
+
+.secondary {
+  background-color: var(--latte);
+  color: var(--mocha);
+
+  &:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--latte) 80%, var(--mocha) 10%);
+  }
+}
+
+.outline {
+  background-color: var(--foam);
+  border-color: var(--latte);
+  color: var(--mocha);
+  box-shadow: none;
+
+  &:hover:not(:disabled) {
+    background-color: var(--paper);
+    border-color: var(--blush);
+  }
+}
+
+.ghost {
+  background-color: transparent;
+  color: var(--mocha);
+  box-shadow: none;
+
+  &:hover:not(:disabled) {
+    background-color: var(--latte);
+  }
+}
+
+.destructive {
+  background-color: color-mix(in srgb, var(--rosewood) 16%, var(--foam));
+  color: var(--rosewood);
+
+  &:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--rosewood) 26%, var(--foam));
+  }
+}
+
+.link {
+  background-color: transparent;
+  color: var(--lilac-deep);
+  box-shadow: none;
+  text-decoration-line: underline;
+  text-underline-offset: 4px;
+
+  &:hover:not(:disabled) {
+    color: var(--mocha);
+  }
+}

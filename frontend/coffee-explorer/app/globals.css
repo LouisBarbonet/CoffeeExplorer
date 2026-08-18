@@ -1,0 +1,32 @@
+@import "../styles/tokens.css";
+@import "tailwindcss";
+
+body {
+  background-color: var(--paper);
+  color: var(--mocha);
+}
+
+/*
+ * Leaflet renders its popup chrome and default divIcon wrapper with fixed,
+ * un-scoped global class names -- a CSS Module can't target them, so these
+ * overrides live here instead.
+ */
+.leaflet-popup-content-wrapper {
+  background-color: var(--foam);
+  border: 2px solid var(--latte);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.leaflet-popup-tip {
+  background-color: var(--foam);
+}
+
+.leaflet-popup-content {
+  margin: 0.5rem;
+}
+
+.leaflet-div-icon {
+  background: transparent;
+  border: none;
+}

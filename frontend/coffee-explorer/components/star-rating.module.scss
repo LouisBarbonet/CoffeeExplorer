@@ -1,0 +1,16 @@
+.bean {
+  transition:
+    color 150ms ease,
+    opacity 150ms ease;
+}
+
+.filled {
+  color: var(--blush);
+  fill: var(--blush);
+}
+
+.empty {
+  color: var(--mocha-soft);
+  fill: none;
+  opacity: 0.5;
+}

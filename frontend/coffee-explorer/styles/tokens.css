@@ -1,0 +1,41 @@
+/*
+ * Design tokens for the "Cafe Passport" visual identity.
+ * Exposed as CSS custom properties so both SCSS Modules and JS (motion,
+ * inline styles) can read the same source of truth.
+ *
+ * Font family variables (--font-display / --font-body / --font-pixel) are
+ * NOT defined here -- they're injected by next/font in app/layout.tsx via
+ * the `variable` option, then simply referenced by component styles.
+ */
+
+:root {
+  /* ---- Palette ---- */
+  --paper: #f7eee1; /* page background -- cream paper */
+  --foam: #fffbf5; /* card/surface background -- milk foam */
+  --latte: #e4c9ae; /* beige/tan -- borders, muted chips */
+  --blush: #f2afc0; /* pastel pink -- primary accent, stamp ink */
+  --blush-deep: #e2879c; /* pressed/hover state for blush */
+  --lilac: #c3b0e6; /* pastel purple -- secondary accent */
+  --lilac-deep: #a68bd6; /* pressed/hover state for lilac */
+  --mocha: #5c3a26; /* deep warm brown -- ink/text color */
+  --mocha-soft: #8a6a52; /* muted/secondary text */
+  --rosewood: #d9736b; /* dusty terracotta-red -- destructive/error */
+
+  /* ---- Radius scale (generous, rounded-cute) ---- */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.75rem;
+  --radius-full: 999px;
+
+  /* ---- Shadows (soft, warm-tinted -- never pure black) ---- */
+  --shadow-sm: 0 1px 2px rgba(92, 58, 38, 0.08);
+  --shadow-md: 0 4px 12px rgba(92, 58, 38, 0.12);
+  --shadow-lg: 0 8px 24px rgba(92, 58, 38, 0.16);
+  --shadow-stamp: 0 2px 0 rgba(92, 58, 38, 0.15);
+
+  /* ---- Motion durations (shared between CSS and the `motion` package) ---- */
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 450ms;
+}

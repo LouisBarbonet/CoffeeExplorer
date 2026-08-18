@@ -1,0 +1,34 @@
+@use "../../../styles/mixins" as *;
+
+.page {
+  @include paper-texture;
+}
+
+.wordmark {
+  font-family: var(--font-display);
+  color: var(--mocha);
+}
+
+.wordmarkAccent {
+  color: var(--blush-deep);
+}
+
+.tagline {
+  font-family: var(--font-body);
+  color: var(--mocha-soft);
+}
+
+.est {
+  font-family: var(--font-pixel);
+  color: var(--lilac-deep);
+  letter-spacing: 0.08em;
+}
+
+.card {
+  @include card-surface(var(--radius-xl));
+}
+
+.error {
+  font-family: var(--font-body);
+  color: var(--rosewood);
+}

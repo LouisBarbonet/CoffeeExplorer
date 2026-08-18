@@ -1,0 +1,40 @@
+@use "../../styles/mixins" as *;
+
+.backdrop {
+  background-color: rgba(92, 58, 38, 0.35);
+  transition: opacity var(--duration-base) ease;
+  @include respect-reduced-motion;
+
+  &[data-ending-style],
+  &[data-starting-style] {
+    opacity: 0;
+  }
+}
+
+.popup {
+  background-color: var(--foam);
+  border: 3px solid var(--latte);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  transform: translate(-50%, -50%) scale(1);
+  transition:
+    transform var(--duration-base) cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity var(--duration-base) ease;
+  @include respect-reduced-motion;
+
+  &[data-ending-style],
+  &[data-starting-style] {
+    transform: translate(-50%, -50%) scale(0.9);
+    opacity: 0;
+  }
+}
+
+.title {
+  font-family: var(--font-display);
+  color: var(--mocha);
+}
+
+.description {
+  font-family: var(--font-body);
+  color: var(--mocha-soft);
+}
