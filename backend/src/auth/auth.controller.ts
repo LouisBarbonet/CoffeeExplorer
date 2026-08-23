@@ -13,6 +13,7 @@ import type { Request, Response } from 'express';
 import { Public } from './decorators/public.decorator';
 import { AuthService, AuthTokens } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { SignupDto } from './dto/signup.dto';
 
 const ACCESS_TOKEN_COOKIE = 'access-token';
 const REFRESH_TOKEN_COOKIE = 'refresh-token';
@@ -40,6 +41,24 @@ export class AuthController {
     const { user, tokens } = await this.authService.login(
       dto.email,
       dto.password,
+    );
+
+    this.setAuthCookies(res, tokens);
+    return { user };
+  }
+
+  @Public()
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @Post('signup')
+  @HttpCode(HttpStatus.CREATED)
+  async signup(
+    @Body() dto: SignupDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { user, tokens } = await this.authService.signup(
+      dto.email,
+      dto.password,
+      dto.name,
     );
 
     this.setAuthCookies(res, tokens);

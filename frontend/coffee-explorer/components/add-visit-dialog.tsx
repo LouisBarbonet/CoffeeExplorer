@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogPopup, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { StarRating } from "@/components/star-rating";
 import { PassportStamp } from "@/components/brand/passport-stamp";
+import { CompanionSelect } from "@/components/companion-select";
 import styles from "./add-visit-dialog.module.scss";
 
 interface AddVisitDialogProps {
@@ -23,6 +24,7 @@ export function AddVisitDialog({ open, coffeeShopId, onOpenChange, onSaved }: Ad
     const [notes, setNotes] = useState("");
     const [rating, setRating] = useState(0);
     const [photoFile, setPhotoFile] = useState<File | null>(null);
+    const [companionIds, setCompanionIds] = useState<string[]>([]);
     const [justSaved, setJustSaved] = useState(false);
     const photoInputRef = useRef<HTMLInputElement | null>(null);
     const notesId = useId();
@@ -32,6 +34,7 @@ export function AddVisitDialog({ open, coffeeShopId, onOpenChange, onSaved }: Ad
         setNotes("");
         setRating(0);
         setPhotoFile(null);
+        setCompanionIds([]);
         setJustSaved(false);
         if (photoInputRef.current) photoInputRef.current.value = "";
     }
@@ -49,6 +52,7 @@ export function AddVisitDialog({ open, coffeeShopId, onOpenChange, onSaved }: Ad
                     notes: notes || undefined,
                     photoUrl,
                     rating: rating > 0 ? rating : undefined,
+                    companionIds: companionIds.length > 0 ? companionIds : undefined,
                 }),
             });
         },
@@ -114,6 +118,7 @@ export function AddVisitDialog({ open, coffeeShopId, onOpenChange, onSaved }: Ad
                                     className={styles.fileInput}
                                 />
                             </div>
+                            <CompanionSelect value={companionIds} onChange={setCompanionIds} />
 
                             {createVisitMutation.isError && (
                                 <p className={styles.error} role="alert">

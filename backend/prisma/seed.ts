@@ -8,6 +8,7 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
     const email = process.env.ADMIN_EMAIL;
     const password = process.env.ADMIN_PASSWORD;
+    const name = process.env.ADMIN_NAME || email?.split('@')[0];
 
     if (!email || !password) {
         throw new Error('ADMIN_EMAIL and ADMIN_PASSWORD must be set to seed the admin user');
@@ -18,7 +19,7 @@ async function main() {
     const user = await prisma.user.upsert({
         where: {email},
         update: {passwordHash},
-        create: {email, passwordHash},
+        create: {email, passwordHash, name: name!},
     });
 
     console.log(`Seeded admin user: ${user.email}`);

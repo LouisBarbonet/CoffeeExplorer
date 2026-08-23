@@ -1,0 +1,73 @@
+@use "../styles/mixins" as *;
+
+.wrapper {
+  position: relative;
+}
+
+.bellButton {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.25rem;
+  width: 2.25rem;
+  border: none;
+  border-radius: var(--radius-full);
+  background-color: transparent;
+  color: var(--mocha);
+  cursor: pointer;
+  @include focus-ring;
+
+  &:hover {
+    background-color: var(--latte);
+  }
+}
+
+.badge {
+  position: absolute;
+  top: 0.125rem;
+  right: 0.125rem;
+  min-width: 1.125rem;
+  height: 1.125rem;
+  border-radius: var(--radius-full);
+  background-color: var(--rosewood);
+  color: var(--foam);
+  font-family: var(--font-body);
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1.125rem;
+  text-align: center;
+  padding: 0 0.25rem;
+}
+
+.panel {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: 1200;
+  width: 18rem;
+  max-height: 20rem;
+  overflow-y: auto;
+  padding: 0.5rem;
+  @include card-surface(var(--radius-lg));
+}
+
+.item {
+  display: block;
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.625rem;
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  color: var(--mocha);
+
+  &:hover {
+    background-color: var(--latte);
+  }
+}
+
+.empty {
+  padding: 0.5rem 0.625rem;
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  color: var(--mocha-soft);
+}

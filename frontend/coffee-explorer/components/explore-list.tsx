@@ -3,21 +3,32 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { AddVisitDialog } from "@/components/add-visit-dialog";
 import { PassportStamp } from "@/components/brand/passport-stamp";
+import { addToWishlist } from "@/lib/api/wishlist";
 import type { CoffeeShop } from "@/lib/api/coffee-shop";
 import styles from "./explore-list.module.scss";
 
 interface ExploreListProps {
     shops: CoffeeShop[];
     visitedShopIds: string[];
+    wishlistedShopIds: string[];
 }
 
-export function ExploreList({ shops, visitedShopIds }: ExploreListProps) {
+export function ExploreList({ shops, visitedShopIds, wishlistedShopIds }: ExploreListProps) {
     const router = useRouter();
     const visitedSet = new Set(visitedShopIds);
     const [activeShopId, setActiveShopId] = useState<string | null>(null);
+    const [wishlisted, setWishlisted] = useState(new Set(wishlistedShopIds));
+
+    const wishlistMutation = useMutation({
+        mutationFn: addToWishlist,
+        onSuccess: (_data, coffeeShopId) => {
+            setWishlisted((prev) => new Set(prev).add(coffeeShopId));
+        },
+    });
 
     function handleVisitSaved() {
         setActiveShopId(null);
@@ -49,14 +60,20 @@ export function ExploreList({ shops, visitedShopIds }: ExploreListProps) {
                                     <p className={styles.location}>{shop.location.city}</p>
                                 )}
                                 {!visited && (
-                                    <Button
-                                        type="button"
-                                        size="sm"
-                                        className="mt-1"
-                                        onClick={() => setActiveShopId(shop.id)}
-                                    >
-                                        Log a visit
-                                    </Button>
+                                    <div className="mt-1 flex gap-2">
+                                        <Button type="button" size="sm" onClick={() => setActiveShopId(shop.id)}>
+                                            Log a visit
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            size="sm"
+                                            variant="outline"
+                                            disabled={wishlisted.has(shop.id) || wishlistMutation.isPending}
+                                            onClick={() => wishlistMutation.mutate(shop.id)}
+                                        >
+                                            {wishlisted.has(shop.id) ? "Wishlisted" : "Wishlist"}
+                                        </Button>
+                                    </div>
                                 )}
                             </div>
                         </div>

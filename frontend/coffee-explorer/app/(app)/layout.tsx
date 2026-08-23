@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/server-api";
 import { LogoutButton } from "@/components/logout-button";
+import { NotificationBell } from "@/components/notification-bell";
 import { AppNavDesktop, AppNavMobile } from "@/components/brand/app-nav";
 import styles from "./layout.module.scss";
 
@@ -22,6 +23,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <AppNavDesktop />
           </div>
           <div className="flex items-center gap-3">
+            <NotificationBell />
             <span className={`hidden text-sm sm:inline ${styles.email}`}>{user.email}</span>
             <LogoutButton />
           </div>

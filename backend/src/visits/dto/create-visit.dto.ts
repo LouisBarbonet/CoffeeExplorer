@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
 import {
+  IsArray,
   IsInt,
   IsISO8601,
   IsOptional,
@@ -38,4 +39,9 @@ export class CreateVisitDto {
   @Min(1)
   @Max(5)
   rating?: number;
+
+  @IsOptional()
+  @IsArray()
+  @IsUUID('4', { each: true })
+  companionIds?: string[];
 }

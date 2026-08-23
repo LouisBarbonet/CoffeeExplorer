@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
@@ -45,6 +49,28 @@ export class AuthService {
     if (!passwordValid) {
       throw new UnauthorizedException('Invalid email or password');
     }
+
+    const tokens = await this.issueTokens(user.id, user.email);
+    return {
+      user: { id: user.id, email: user.email, name: user.name },
+      tokens,
+    };
+  }
+
+  async signup(
+    email: string,
+    password: string,
+    name: string,
+  ): Promise<{ user: AutheticatedUserView; tokens: AuthTokens }> {
+    const existing = await this.prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      throw new ConflictException('An account with this email already exists');
+    }
+
+    const passwordHash = await argon2.hash(password);
+    const user = await this.prisma.user.create({
+      data: { email, passwordHash, name },
+    });
 
     const tokens = await this.issueTokens(user.id, user.email);
     return {

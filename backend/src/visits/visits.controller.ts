@@ -27,6 +27,11 @@ export class VisitsController {
     return this.visitsService.findAllForUser(user.id, coffeeShopId);
   }
 
+  @Get('buddies')
+  findBuddyVisitedShops(@CurrentUser() user: AuthenticatedUser) {
+    return this.visitsService.findBuddyVisitedShops(user.id);
+  }
+
   @Post()
   create(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateVisitDto) {
     return this.visitsService.create(user.id, dto);

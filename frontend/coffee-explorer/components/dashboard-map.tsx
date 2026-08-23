@@ -8,12 +8,15 @@ import { InteractiveMap } from "@/components/interactive-map-loader";
 import { AddCoffeeShopDialog } from "@/components/add-coffee-shop-dialog";
 import { AddVisitDialog } from "@/components/add-visit-dialog";
 import type { CoffeeShop } from "@/lib/api/coffee-shop";
+import type { BuddyVisitedShop } from "@/lib/api/buddy-shop";
+import { addToWishlist } from "@/lib/api/wishlist";
 
 interface DashboardMapProps {
     coffeeShops: CoffeeShop[];
+    buddyShops: BuddyVisitedShop[];
 }
 
-export function DashboardMap({ coffeeShops }: DashboardMapProps) {
+export function DashboardMap({ coffeeShops, buddyShops }: DashboardMapProps) {
     const router = useRouter();
     const [addMode, setAddMode] = useState(false);
     const [pendingMarker, setPendingMarker] = useState<{ lat: number; lng: number } | null>(null);
@@ -58,15 +61,21 @@ export function DashboardMap({ coffeeShops }: DashboardMapProps) {
         router.refresh();
     }
 
+    async function handleWishlistClick(coffeeShopId: string) {
+        await addToWishlist(coffeeShopId);
+    }
+
     return (
         <div className="flex flex-col gap-4">
             <div className="relative">
                 <InteractiveMap
                     coffeeShops={coffeeShops}
+                    buddyShops={buddyShops}
                     addMode={addMode}
                     pendingMarker={pendingMarker}
                     onMapClick={handleMapClick}
                     onAddVisitClick={handleAddVisitClick}
+                    onWishlistClick={handleWishlistClick}
                 />
                 <Button
                     size="lg"

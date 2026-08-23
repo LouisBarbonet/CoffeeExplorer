@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { apiFetch, ApiError } from "@/lib/api-client";
@@ -81,6 +82,12 @@ export default function LoginPage() {
           <Button type="submit" size="lg" disabled={loginMutation.isPending} className="mt-1">
             {loginMutation.isPending ? "Signing in…" : "Sign in"}
           </Button>
+          <p className={`text-center text-sm ${styles.tagline}`}>
+            New here?{" "}
+            <Link href="/signup" className="underline">
+              Create an account
+            </Link>
+          </p>
         </form>
       </div>
     </div>

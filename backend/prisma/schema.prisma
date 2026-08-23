@@ -14,13 +14,28 @@ datasource db {
 }
 
 model User {
-  id            String         @id @default(uuid())
-  email         String         @unique
-  passwordHash  String
-  name          String?
-  createdAt     DateTime       @default(now())
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  avatarUrl    String?
+  createdAt    DateTime  @default(now())
+
+  favouriteBeanBagId String?
+  favouriteBeanBag   BeanBag? @relation("FavouriteBeanBag", fields: [favouriteBeanBagId], references: [id])
+
   refreshTokens RefreshToken[]
   visits        Visit[]
+  companionOnVisits Visit[] @relation("VisitCompanions")
+
+  sentBuddyRequests     BuddyRequest[] @relation("BuddyRequestsSent")
+  receivedBuddyRequests BuddyRequest[] @relation("BuddyRequestsReceived")
+
+  wishlistItems WishlistItem[]
+  beanRatings   BeanRating[]
+
+  notifications      Notification[] @relation("NotificationRecipient")
+  notificationsCaused Notification[] @relation("NotificationActor")
 }
 
 model RefreshToken {
@@ -43,9 +58,11 @@ model CoffeeShop {
   updatedAt   DateTime @updatedAt
 
   // Relations
-  location Location?
-  photos   Photo[]
-  visits   Visit[]
+  location      Location?
+  photos        Photo[]
+  visits        Visit[]
+  wishlistedBy  WishlistItem[]
+  notifications Notification[]
 }
 
 model Visit {
@@ -59,6 +76,9 @@ model Visit {
   rating       Int?
   photos       Photo[]
   createdAt    DateTime   @default(now())
+
+  companions    User[]         @relation("VisitCompanions")
+  notifications Notification[]
 
   @@index([userId])
   @@index([coffeeShopId])
@@ -81,6 +101,103 @@ model Photo {
   caption      String?
   coffeeShopId String?
   coffeeShop   CoffeeShop? @relation(fields: [coffeeShopId], references: [id], onDelete: Cascade)
-  visit        Visit?      @relation(fields: [visitId], references: [id], onDelete: Cascade)
   visitId      String?
+  visit        Visit?      @relation(fields: [visitId], references: [id], onDelete: Cascade)
+  beanBagId    String?
+  beanBag      BeanBag?    @relation(fields: [beanBagId], references: [id], onDelete: Cascade)
+}
+
+enum BuddyRequestStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+model BuddyRequest {
+  id          String             @id @default(uuid())
+  requesterId String
+  requester   User               @relation("BuddyRequestsSent", fields: [requesterId], references: [id], onDelete: Cascade)
+  addresseeId String
+  addressee   User               @relation("BuddyRequestsReceived", fields: [addresseeId], references: [id], onDelete: Cascade)
+  status      BuddyRequestStatus @default(PENDING)
+  createdAt   DateTime           @default(now())
+  respondedAt DateTime?
+
+  @@unique([requesterId, addresseeId])
+  @@index([addresseeId])
+}
+
+model WishlistItem {
+  id           String     @id @default(uuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coffeeShopId String
+  coffeeShop   CoffeeShop @relation(fields: [coffeeShopId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+
+  @@unique([userId, coffeeShopId])
+  @@index([userId])
+}
+
+enum RoastLevel {
+  LIGHT
+  MEDIUM
+  DARK
+}
+
+model BeanBag {
+  id         String       @id @default(uuid())
+  name       String
+  roaster    String?
+  origin     String?
+  roastLevel RoastLevel?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  photos        Photo[]
+  ratings       BeanRating[]
+  favouritedBy  User[]         @relation("FavouriteBeanBag")
+  notifications Notification[]
+}
+
+model BeanRating {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  beanBagId String
+  beanBag   BeanBag  @relation(fields: [beanBagId], references: [id], onDelete: Cascade)
+  rating    Int?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, beanBagId])
+  @@index([beanBagId])
+}
+
+enum NotificationType {
+  NEW_SHOP
+  NEW_VISIT
+  NEW_BEAN_RATING
+  BUDDY_REQUEST
+  BUDDY_ACCEPTED
+}
+
+model Notification {
+  id           String           @id @default(uuid())
+  userId       String
+  user         User             @relation("NotificationRecipient", fields: [userId], references: [id], onDelete: Cascade)
+  actorId      String
+  actor        User             @relation("NotificationActor", fields: [actorId], references: [id], onDelete: Cascade)
+  type         NotificationType
+  coffeeShopId String?
+  coffeeShop   CoffeeShop?      @relation(fields: [coffeeShopId], references: [id], onDelete: Cascade)
+  visitId      String?
+  visit        Visit?           @relation(fields: [visitId], references: [id], onDelete: Cascade)
+  beanBagId    String?
+  beanBag      BeanBag?         @relation(fields: [beanBagId], references: [id], onDelete: Cascade)
+  read         Boolean          @default(false)
+  createdAt    DateTime         @default(now())
+
+  @@index([userId, read])
 }

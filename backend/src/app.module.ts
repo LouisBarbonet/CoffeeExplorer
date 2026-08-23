@@ -11,6 +11,11 @@ import { UsersModule } from './users/users.module';
 import { CoffeeShopsModule } from './coffee_shops/coffee-shops.module';
 import { VisitsModule } from './visits/visits.module';
 import { PhotosModule } from './photos/photos.module';
+import { BuddiesModule } from './buddies/buddies.module';
+import { WishlistModule } from './wishlist/wishlist.module';
+import { BeanBagsModule } from './bean_bags/bean-bags.module';
+import { BeanRatingsModule } from './bean_ratings/bean-ratings.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -22,6 +27,11 @@ import { PhotosModule } from './photos/photos.module';
     CoffeeShopsModule,
     VisitsModule,
     PhotosModule,
+    BuddiesModule,
+    WishlistModule,
+    BeanBagsModule,
+    BeanRatingsModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [

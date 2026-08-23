@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogPopup, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import type { Visit } from "@/lib/api/visit";
 import { StarRating } from "@/components/star-rating";
+import { CompanionSelect } from "@/components/companion-select";
 import styles from "./edit-visit-dialog.module.scss";
 
 interface EditVisitDialogProps {
@@ -20,6 +21,7 @@ interface EditVisitDialogProps {
 export function EditVisitDialog({ visit, onOpenChange, onSaved }: EditVisitDialogProps) {
     const [rating, setRating] = useState(0);
     const [notes, setNotes] = useState("");
+    const [companionIds, setCompanionIds] = useState<string[]>([]);
     const notesId = useId();
 
     // Reset the form whenever a different visit (or null, on close) comes
@@ -31,6 +33,7 @@ export function EditVisitDialog({ visit, onOpenChange, onSaved }: EditVisitDialo
         setSyncedVisit(visit);
         setNotes(visit?.notes ?? "");
         setRating(visit?.rating ?? 0);
+        setCompanionIds(visit?.companions.map((c) => c.id) ?? []);
     }
 
     const updateVisitMutation = useMutation({
@@ -38,7 +41,11 @@ export function EditVisitDialog({ visit, onOpenChange, onSaved }: EditVisitDialo
             if (!visit) throw new Error("Missing visit");
             return apiFetch(`/visits/${visit.id}`, {
                 method: "PATCH",
-                body: JSON.stringify({ notes: notes || undefined, rating: rating > 0 ? rating : undefined }),
+                body: JSON.stringify({
+                    notes: notes || undefined,
+                    rating: rating > 0 ? rating : undefined,
+                    companionIds,
+                }),
             });
         },
         onSuccess: () => {
@@ -78,6 +85,7 @@ export function EditVisitDialog({ visit, onOpenChange, onSaved }: EditVisitDialo
                             onChange={(e) => setNotes(e.target.value)}
                         />
                     </div>
+                    <CompanionSelect value={companionIds} onChange={setCompanionIds} />
 
                     {updateVisitMutation.isError && (
                         <p className={styles.error} role="alert">

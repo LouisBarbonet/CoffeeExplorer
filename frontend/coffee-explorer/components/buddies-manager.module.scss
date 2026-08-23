@@ -1,0 +1,43 @@
+@use "../styles/mixins" as *;
+
+.card {
+  @include card-surface(var(--radius-xl));
+}
+
+.sectionTitle {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--mocha);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--mocha);
+}
+
+.buddyLink {
+  font-weight: 600;
+  color: var(--mocha);
+  text-decoration: underline;
+}
+
+.badge {
+  border-radius: var(--radius-full);
+  background-color: var(--latte);
+  padding: 0.25rem 0.625rem;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--mocha-soft);
+}
+
+.hint {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--mocha-soft);
+}

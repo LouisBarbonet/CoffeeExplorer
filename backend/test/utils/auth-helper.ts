@@ -13,13 +13,14 @@ export async function seedUser(
   app: INestApplication,
   email: string,
   password: string,
+  name: string = email.split('@')[0],
 ) {
   const prisma = app.get(PrismaService);
   const passwordHash = await argon2.hash(password);
   await prisma.user.upsert({
     where: { email },
     update: { passwordHash },
-    create: { email, passwordHash },
+    create: { email, passwordHash, name },
   });
 }
 

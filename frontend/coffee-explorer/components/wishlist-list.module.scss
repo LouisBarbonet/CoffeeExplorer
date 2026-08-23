@@ -1,0 +1,46 @@
+@use "../styles/mixins" as *;
+
+.card {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  @include card-surface(var(--radius-lg));
+}
+
+.image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.imagePlaceholder {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: linear-gradient(135deg, var(--latte), var(--paper));
+}
+
+.name {
+  font-family: var(--font-display);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--mocha);
+  transition: color 150ms ease;
+  @include focus-ring;
+
+  &:hover {
+    color: var(--blush-deep);
+  }
+}
+
+.location {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--mocha-soft);
+}
+
+.empty {
+  font-family: var(--font-body);
+  color: var(--mocha-soft);
+  font-size: 0.875rem;
+}

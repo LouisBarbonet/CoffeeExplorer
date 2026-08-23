@@ -5,14 +5,17 @@ import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { CoffeeShop } from "@/lib/api/coffee-shop";
+import type { BuddyVisitedShop } from "@/lib/api/buddy-shop";
 import styles from "./interactive-map.module.scss";
 
 interface InteractiveMapProps {
     coffeeShops: CoffeeShop[];
+    buddyShops?: BuddyVisitedShop[];
     addMode: boolean;
     pendingMarker: { lat: number; lng: number } | null;
     onMapClick: (lat: number, lng: number) => void;
     onAddVisitClick: (coffeeShopId: string) => void;
+    onWishlistClick?: (coffeeShopId: string) => Promise<void>;
 }
 
 // Raw path data from lucide-react's "Coffee" icon (24x24 viewBox) -- Leaflet's
@@ -27,9 +30,17 @@ const COFFEE_CUP_SVG = `
     </svg>
 `;
 
-function createPinIcon(pending: boolean) {
+type PinVariant = "default" | "pending" | "buddy";
+
+const PIN_VARIANT_CLASS: Record<PinVariant, string> = {
+    default: "",
+    pending: styles.pinPending,
+    buddy: styles.pinBuddy,
+};
+
+function createPinIcon(variant: PinVariant) {
     return L.divIcon({
-        className: pending ? `${styles.pin} ${styles.pinPending}` : styles.pin,
+        className: `${styles.pin} ${PIN_VARIANT_CLASS[variant]}`.trim(),
         html: COFFEE_CUP_SVG,
         iconSize: [32, 32],
         iconAnchor: [16, 16],
@@ -37,7 +48,15 @@ function createPinIcon(pending: boolean) {
     });
 }
 
-export function InteractiveMap({ coffeeShops, addMode, pendingMarker, onMapClick, onAddVisitClick }: InteractiveMapProps) {
+export function InteractiveMap({
+    coffeeShops,
+    buddyShops = [],
+    addMode,
+    pendingMarker,
+    onMapClick,
+    onAddVisitClick,
+    onWishlistClick,
+}: InteractiveMapProps) {
     const mapRef = useRef<L.Map | null>(null);
     const mapContainerRef = useRef<HTMLDivElement | null>(null);
     const pendingMarkerRef = useRef<L.Marker | null>(null);
@@ -59,6 +78,11 @@ export function InteractiveMap({ coffeeShops, addMode, pendingMarker, onMapClick
     useEffect(() => {
         onAddVisitClickRef.current = onAddVisitClick;
     }, [onAddVisitClick]);
+
+    const onWishlistClickRef = useRef(onWishlistClick);
+    useEffect(() => {
+        onWishlistClickRef.current = onWishlistClick;
+    }, [onWishlistClick]);
 
 
     useEffect(() => {
@@ -89,13 +113,34 @@ export function InteractiveMap({ coffeeShops, addMode, pendingMarker, onMapClick
                     onAddVisitClickRef.current(shopId);
                 });
             });
+
+            mapRef.current.on("popupopen", (e: L.PopupEvent) => {
+                const popupEl = e.popup.getElement();
+                const button = popupEl?.querySelector<HTMLButtonElement>(".wishlist-btn");
+                const shopId = button?.dataset.shopId;
+                if (!button || !shopId) return;
+
+                button.addEventListener("click", () => {
+                    if (!onWishlistClickRef.current) return;
+                    button.disabled = true;
+                    button.textContent = "Wishlisting…";
+                    onWishlistClickRef.current(shopId)
+                        .then(() => {
+                            button.textContent = "Wishlisted!";
+                        })
+                        .catch(() => {
+                            button.disabled = false;
+                            button.textContent = "+ Wishlist";
+                        });
+                });
+            });
         }
 
         const map = mapRef.current;
         if (!map) return;
 
         const markersLayer = L.layerGroup().addTo(map);
-        const pinIcon = createPinIcon(false);
+        const pinIcon = createPinIcon("default");
 
         coffeeShops.forEach((shop) => {
             // Validate that the nested location object exists and holds values
@@ -152,10 +197,67 @@ export function InteractiveMap({ coffeeShops, addMode, pendingMarker, onMapClick
                 .bindPopup(popupEl);
         });
 
+        const buddyPinIcon = createPinIcon("buddy");
+
+        buddyShops.forEach(({ coffeeShop: shop, visitedBy }) => {
+            if (!shop.location?.latitude || !shop.location?.longitude) return;
+
+            const popupEl = document.createElement("div");
+            popupEl.className = styles.popup;
+
+            if (shop.photos && shop.photos.length > 0) {
+                const img = document.createElement("img");
+                img.src = shop.photos[0].url;
+                img.alt = shop.name;
+                img.className = styles.popupImage;
+                popupEl.appendChild(img);
+            }
+
+            const title = document.createElement("h3");
+            title.className = styles.popupTitle;
+            title.textContent = shop.name;
+            popupEl.appendChild(title);
+
+            const visitedByLabel = document.createElement("p");
+            visitedByLabel.className = styles.visitedByLabel;
+            visitedByLabel.textContent = `Visited by ${visitedBy.map((b) => b.name).join(", ")}`;
+            popupEl.appendChild(visitedByLabel);
+
+            if (shop.location.address) {
+                const address = document.createElement("p");
+                address.className = styles.popupAddress;
+                address.textContent = shop.location.address;
+                popupEl.appendChild(address);
+            }
+
+            const actions = document.createElement("div");
+            actions.className = styles.popupActions;
+
+            const wishlistButton = document.createElement("button");
+            wishlistButton.type = "button";
+            wishlistButton.className = `wishlist-btn ${styles.wishlistBtn}`;
+            wishlistButton.dataset.shopId = shop.id;
+            wishlistButton.textContent = "+ Wishlist";
+            actions.appendChild(wishlistButton);
+
+            const addVisitButton = document.createElement("button");
+            addVisitButton.type = "button";
+            addVisitButton.className = `add-visit-btn ${styles.addVisitBtn}`;
+            addVisitButton.dataset.shopId = shop.id;
+            addVisitButton.textContent = "+ Add Visit";
+            actions.appendChild(addVisitButton);
+
+            popupEl.appendChild(actions);
+
+            L.marker([shop.location.latitude, shop.location.longitude], { icon: buddyPinIcon })
+                .addTo(markersLayer)
+                .bindPopup(popupEl);
+        });
+
         return () => {
             markersLayer.remove();
         };
-    }, [coffeeShops]);
+    }, [coffeeShops, buddyShops]);
 
     // Toggle a crosshair cursor while add-mode is active, as a visual hint
     // that the next click on the map places a marker.
@@ -175,7 +277,7 @@ export function InteractiveMap({ coffeeShops, addMode, pendingMarker, onMapClick
 
         if (pendingMarker) {
             pendingMarkerRef.current = L.marker([pendingMarker.lat, pendingMarker.lng], {
-                icon: createPinIcon(true),
+                icon: createPinIcon("pending"),
             }).addTo(map);
         }
     }, [pendingMarker]);

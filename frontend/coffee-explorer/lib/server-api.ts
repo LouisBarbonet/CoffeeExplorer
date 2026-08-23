@@ -7,7 +7,13 @@ export interface CurrentUser {
     id: string;
     email: string;
     name: string | null;
+    avatarUrl: string | null;
     createdAt: string;
+    favouriteBeanBag: { id: string; name: string } | null;
+    stats: {
+        visitCount: number;
+        shopsVisitedCount: number;
+    };
 }
 
 /** Fetches from the backend directly (container-to-container), forwarding the incoming request's cookies. */
