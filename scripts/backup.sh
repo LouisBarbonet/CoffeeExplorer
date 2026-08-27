@@ -42,6 +42,11 @@ provider = Cloudflare
 access_key_id = ${R2_ACCESS_KEY_ID}
 secret_access_key = ${R2_SECRET_ACCESS_KEY}
 endpoint = https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com
+# R2 API tokens scoped to "Object Read & Write" on a single bucket (the
+# recommended, least-privilege scope) can't call CreateBucket -- without
+# this, rclone's default "create if missing" check 403s even though the
+# bucket already exists and every actual read/write works fine.
+no_check_bucket = true
 EOF
 chmod 600 "$RCLONE_CONF"
 
