@@ -8,3 +8,7 @@
 # OS
 .DS_Store
 Thumbs.db
+
+# Local scratch space for scripts/backup.sh + scripts/restore.sh (dump
+# files + the transient rclone config) -- never meant to be committed.
+backups/
