@@ -115,6 +115,42 @@ Add these as GitHub Actions secrets (repo **Settings -> Secrets and variables ->
 From then on, every push to `main` runs checks, builds+pushes amd64 images to GHCR, then SSHes
 in and runs the same `pull` / `up -d` / `migrate deploy` sequence from step 4 automatically.
 
+## 6. Set up backups
+
+Nightly Postgres + uploaded-photos backups to Cloudflare R2, run by
+`.github/workflows/backup.yml` over the same SSH connection as deploys --
+no new GitHub Actions secrets needed.
+
+1. In the Cloudflare dashboard: **R2 -> Create bucket** (e.g. `coffeeexplorer-backups`).
+2. Still in R2: **Manage R2 API Tokens -> Create API Token** -- permissions
+   **Object Read & Write**, scoped to that one bucket. Copy the **Access Key
+   ID** and **Secret Access Key** shown (only shown once). The **Account ID**
+   is on the R2 overview page.
+3. On the VM, add to `.env`:
+   ```
+   R2_ACCOUNT_ID=<your account id>
+   R2_ACCESS_KEY_ID=<the access key id>
+   R2_SECRET_ACCESS_KEY=<the secret access key>
+   R2_BUCKET=coffeeexplorer-backups
+   ```
+4. Test it manually before trusting the schedule:
+   ```sh
+   cd ~/coffeeexplorer
+   bash scripts/backup.sh
+   ```
+   This dumps Postgres, uploads it to `r2://coffeeexplorer-backups/postgres/`, prunes dumps older
+   than 14 days, and mirrors the `uploads` volume to `r2://coffeeexplorer-backups/uploads/`.
+5. Once this file is on `main`, the `Backup` workflow runs automatically at 03:00 UTC every night.
+   You can also trigger it on demand from **Actions -> Backup -> Run workflow**.
+
+**Restoring** (destructive -- overwrites the live database):
+
+```sh
+cd ~/coffeeexplorer
+bash scripts/restore.sh list              # see what's available
+bash scripts/restore.sh latest --yes      # or a specific dump filename
+```
+
 ## About TLS
 
 This project's TLS setup mirrors StravaClone's exactly: the domain sits behind **Cloudflare**

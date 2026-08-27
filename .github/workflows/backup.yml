@@ -1,0 +1,24 @@
+name: Backup
+
+# Nightly Postgres + uploads backup to Cloudflare R2 (see scripts/backup.sh
+# and DEPLOY.md's "Set up backups" section). Runs on the VM itself over SSH,
+# reusing the same secrets as cd.yml's deploy job -- no new secrets needed.
+on:
+  schedule:
+    - cron: '0 3 * * *' # 03:00 UTC nightly
+  workflow_dispatch: {}
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run backup script on the VM
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.ORACLE_VM_HOST }}
+          username: ${{ secrets.ORACLE_VM_USER }}
+          key: ${{ secrets.ORACLE_VM_SSH_KEY }}
+          script: |
+            set -e
+            cd ~/coffeeexplorer
+            bash scripts/backup.sh
