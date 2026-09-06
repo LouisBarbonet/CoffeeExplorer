@@ -24,7 +24,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </div>
           <div className="flex items-center gap-3">
             <NotificationBell />
-            <span className={`hidden text-sm sm:inline ${styles.email}`}>{user.email}</span>
+            <Link href="/profile" className={`hidden text-sm sm:inline ${styles.email}`}>{user.email}</Link>
             <LogoutButton />
           </div>
         </div>

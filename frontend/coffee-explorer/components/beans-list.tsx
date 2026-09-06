@@ -18,11 +18,20 @@ interface BeansListProps {
     favouriteBeanBagId: string | null;
 }
 
+type BeanFilter = "all" | "mine" | "others";
+
 export function BeansList({ bags, myRatings, favouriteBeanBagId }: BeansListProps) {
     const router = useRouter();
     const ratingsByBagId = new Map(myRatings.map((r) => [r.beanBagId, r]));
     const [dialogOpen, setDialogOpen] = useState(false);
     const [dialogBag, setDialogBag] = useState<BeanBag | null>(null);
+    const [filter, setFilter] = useState<BeanFilter>("all");
+
+    const filteredBags = bags.filter((bag) => {
+        if (filter === "mine") return ratingsByBagId.has(bag.id);
+        if (filter === "others") return !ratingsByBagId.has(bag.id);
+        return true;
+    });
 
     const favouriteMutation = useMutation({
         mutationFn: (beanBagId: string) => updateProfile({ favouriteBeanBagId: beanBagId }),
@@ -37,7 +46,33 @@ export function BeansList({ bags, myRatings, favouriteBeanBagId }: BeansListProp
 
     return (
         <>
-            <div className="flex justify-end">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex gap-2">
+                    <Button
+                        type="button"
+                        size="sm"
+                        variant={filter === "all" ? "default" : "outline"}
+                        onClick={() => setFilter("all")}
+                    >
+                        All
+                    </Button>
+                    <Button
+                        type="button"
+                        size="sm"
+                        variant={filter === "mine" ? "default" : "outline"}
+                        onClick={() => setFilter("mine")}
+                    >
+                        My Bags
+                    </Button>
+                    <Button
+                        type="button"
+                        size="sm"
+                        variant={filter === "others" ? "default" : "outline"}
+                        onClick={() => setFilter("others")}
+                    >
+                        Others
+                    </Button>
+                </div>
                 <Button
                     type="button"
                     onClick={() => {
@@ -50,11 +85,17 @@ export function BeansList({ bags, myRatings, favouriteBeanBagId }: BeansListProp
                 </Button>
             </div>
 
-            {bags.length === 0 ? (
-                <p className={styles.empty}>No bean bags have been added yet.</p>
+            {filteredBags.length === 0 ? (
+                <p className={styles.empty}>
+                    {filter === "mine"
+                        ? "You haven't rated any bags yet."
+                        : filter === "others"
+                          ? "No other bags to show."
+                          : "No bean bags have been added yet."}
+                </p>
             ) : (
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                    {bags.map((bag) => {
+                    {filteredBags.map((bag) => {
                         const myRating = ratingsByBagId.get(bag.id);
                         const isFavourite = favouriteBeanBagId === bag.id;
                         return (

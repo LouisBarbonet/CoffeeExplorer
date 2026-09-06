@@ -44,7 +44,9 @@
   position: absolute;
   top: calc(100% + 0.5rem);
   right: 0;
-  z-index: 1200;
+  // Below the dialog tier (1000/1001, see components/ui/dialog.tsx) so an
+  // open dialog always wins over a left-open notification dropdown.
+  z-index: 900;
   width: 18rem;
   max-height: 20rem;
   overflow-y: auto;
