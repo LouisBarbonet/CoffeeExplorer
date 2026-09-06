@@ -61,13 +61,19 @@ export function ExploreList({ shops, visitedShopIds, wishlistedShopIds }: Explor
                                 )}
                                 {!visited && (
                                     <div className="mt-1 flex gap-2">
-                                        <Button type="button" size="sm" onClick={() => setActiveShopId(shop.id)}>
+                                        <Button
+                                            type="button"
+                                            size="sm"
+                                            className="min-w-0 flex-1"
+                                            onClick={() => setActiveShopId(shop.id)}
+                                        >
                                             Log a visit
                                         </Button>
                                         <Button
                                             type="button"
                                             size="sm"
                                             variant="outline"
+                                            className="min-w-0 flex-1"
                                             disabled={wishlisted.has(shop.id) || wishlistMutation.isPending}
                                             onClick={() => wishlistMutation.mutate(shop.id)}
                                         >
