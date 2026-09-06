@@ -10,6 +10,11 @@ const DialogTrigger = DialogPrimitive.Trigger;
 const DialogClose = DialogPrimitive.Close;
 const DialogPortal = DialogPrimitive.Portal;
 
+// z-[1000]/z-[1001] here are intentionally the topmost UI layer in the app --
+// nothing else should use a higher z-index. When adding a new floating/fixed
+// element elsewhere, keep it below 1000 so it can never sit on top of an open
+// dialog (this is what caused the map's floating "Add a Coffee Shop" button
+// and the notification dropdown to previously render over open dialogs).
 function DialogBackdrop({ className, ...props}: DialogPrimitive.Backdrop.Props) {
     return (
         <DialogPrimitive.Backdrop

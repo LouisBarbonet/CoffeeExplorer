@@ -77,15 +77,17 @@ export function DashboardMap({ coffeeShops, buddyShops }: DashboardMapProps) {
                     onAddVisitClick={handleAddVisitClick}
                     onWishlistClick={handleWishlistClick}
                 />
+                {!isShopDialogOpen && !isVisitDialogOpen && (
                 <Button
                     size="lg"
                     variant={addMode ? "secondary" : "default"}
                     onClick={() => setAddMode((v) => !v)}
-                    className="absolute right-4 bottom-4 z-[1100]"
+                    className="absolute right-4 bottom-4 z-[500]"
                 >
                     {addMode ? <X data-icon="inline-start" /> : <Plus data-icon="inline-start" />}
                     {addMode ? "Cancel" : "Add a Coffee Shop"}
                 </Button>
+                )}
             </div>
             <AddCoffeeShopDialog
                 open={isShopDialogOpen}
