@@ -46,42 +46,30 @@ export function BeansList({ bags, myRatings, favouriteBeanBagId }: BeansListProp
 
     return (
         <>
-            <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex gap-2">
-                    <Button
-                        type="button"
-                        size="sm"
-                        variant={filter === "all" ? "default" : "outline"}
-                        onClick={() => setFilter("all")}
-                    >
-                        All
-                    </Button>
-                    <Button
-                        type="button"
-                        size="sm"
-                        variant={filter === "mine" ? "default" : "outline"}
-                        onClick={() => setFilter("mine")}
-                    >
-                        My Bags
-                    </Button>
-                    <Button
-                        type="button"
-                        size="sm"
-                        variant={filter === "others" ? "default" : "outline"}
-                        onClick={() => setFilter("others")}
-                    >
-                        Others
-                    </Button>
-                </div>
+            <div className="flex gap-2">
                 <Button
                     type="button"
-                    onClick={() => {
-                        setDialogBag(null);
-                        setDialogOpen(true);
-                    }}
+                    size="sm"
+                    variant={filter === "all" ? "default" : "outline"}
+                    onClick={() => setFilter("all")}
                 >
-                    <Plus data-icon="inline-start" />
-                    Add a Bean Bag
+                    All
+                </Button>
+                <Button
+                    type="button"
+                    size="sm"
+                    variant={filter === "mine" ? "default" : "outline"}
+                    onClick={() => setFilter("mine")}
+                >
+                    My Bags
+                </Button>
+                <Button
+                    type="button"
+                    size="sm"
+                    variant={filter === "others" ? "default" : "outline"}
+                    onClick={() => setFilter("others")}
+                >
+                    Others
                 </Button>
             </div>
 
@@ -146,6 +134,20 @@ export function BeansList({ bags, myRatings, favouriteBeanBagId }: BeansListProp
                         );
                     })}
                 </div>
+            )}
+
+            {!dialogOpen && (
+                <Button
+                    size="lg"
+                    className="fixed right-4 bottom-4 z-[500]"
+                    onClick={() => {
+                        setDialogBag(null);
+                        setDialogOpen(true);
+                    }}
+                >
+                    <Plus data-icon="inline-start" />
+                    Add a Bean Bag
+                </Button>
             )}
 
             <AddBeanRatingDialog
